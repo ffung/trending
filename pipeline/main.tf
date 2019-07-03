@@ -49,6 +49,21 @@ resource "aws_iam_role_policy" "build" {
         "ec2:DescribeVpcs"
       ],
       "Resource": "*"
+    },
+    {
+      "Effect": "Allow",
+      "Action": [
+        "ec2:CreateNetworkInterfacePermission"
+      ],
+      "Resource": "arn:aws:ec2:${var.region}:${var.account_id}:network-interface/*",
+      "Condition": {
+         "StringEquals": {
+             "ec2:Subnet": [
+               "arn:aws:ec2:${var.region}:${var.account_id}:subnet/${var.subnets[0]}"
+             ],
+             "ec2:AuthorizedService": "codebuild.amazonaws.com"
+         }
+      }
     }
   ]
 }
@@ -73,7 +88,7 @@ resource "aws_codebuild_project" "build" {
 
   source {
     type            = "GITHUB"
-    location        = "https://github.com/ffung/trending.git"
+    location        = "${var.github_repository}"
     git_clone_depth = 1
   }
 
@@ -93,17 +108,4 @@ resource "aws_codebuild_project" "build" {
 resource "aws_codebuild_webhook" "build" {
   project_name = "${aws_codebuild_project.build.name}"
 
-}
-
-resource "github_repository_webhook" "build" {
-  active     = true
-  events     = ["push"]
-  repository = "${var.github_repository_name"}"
-
-  configuration {
-    url          = "${aws_codebuild_webhook.build.payload_url}"
-    secret       = "${aws_codebuild_webhook.build.secret}"
-    content_type = "json"
-    insecure_ssl = false
-  }
 }

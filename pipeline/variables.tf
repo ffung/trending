@@ -1,3 +1,11 @@
+variable "account_id" {
+  default = ""
+}
+
+variable "region" {
+  default = ""
+}
+
 variable "vpc_id" {
   default = ""
 }
@@ -11,7 +19,7 @@ variable "subnets" {
   default = []
 }
 
-variable "github_repository_name" {
+variable "github_repository" {
   default = ""
 }
 
