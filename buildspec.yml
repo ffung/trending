@@ -15,4 +15,3 @@ phases:
 artifacts:
   files:
     - '**/*'
-  base-directory: trending

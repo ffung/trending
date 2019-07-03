@@ -1,3 +1,8 @@
+
+resource "aws_s3_bucket" "build" {
+  bucket = "trending-bucket"
+}
+
 # CodeBuild
 #
 resource "aws_iam_role" "build" {
@@ -77,7 +82,8 @@ resource "aws_codebuild_project" "build" {
   service_role  = "${aws_iam_role.build.arn}"
 
   artifacts {
-    type = "NO_ARTIFACTS"
+    type = "S3"
+    location = "${aws_s3_bucket.build.bucket}"
   }
 
   environment {
@@ -94,7 +100,7 @@ resource "aws_codebuild_project" "build" {
 
   vpc_config {
     vpc_id = "${var.vpc_id}"
-    subnets = "${var.subnets}"
+    subnets = ["${var.subnets[0]}"]
     security_group_ids = [
       "${var.security_group_id}"
     ]
