@@ -7,6 +7,9 @@ __copyright__ = "Fai Fung"
 __license__ = "mit"
 
 
+def test():
+    pass
+
 # def test_fib():
 #     assert fib(1) == 1
 #     assert fib(2) == 1

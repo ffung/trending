@@ -3,6 +3,7 @@
 import logging
 
 from pandas.io.json import read_json
+from pandas.io.json import json_normalize
 
 __author__ = "Fai Fung"
 __copyright__ = "Fai Fung"
@@ -16,7 +17,13 @@ class TweetsAnalyzer():
 
     def run(self):
         pd = read_json(self.tweets_file, lines=True)
+        # print(pd['entities']['hashtags'].value_counts())
+
         print (pd)
+        hashtags = json_normalize(pd['entities'], 'hashtags',  errors='ignore')
+                                 # (, [['hashtags', "text"]], errors='ignore')
+        hashtags['text'] = hashtags['text'].str.lower()
+        print (hashtags['text'].value_counts())
 
 
 
