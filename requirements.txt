@@ -15,3 +15,7 @@
 # numpy==1.13.3
 # scipy==1.0
 #
+
+feedgen==0.7.0
+tweepy==3.7.0
+pandas==0.24.2

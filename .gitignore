@@ -130,3 +130,6 @@ venv.bak/
 
 # Ignored vscode files
 .vscode/
+
+
+trending.ini
