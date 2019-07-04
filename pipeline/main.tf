@@ -125,3 +125,76 @@ resource "aws_codebuild_webhook" "build" {
   project_name = "${aws_codebuild_project.build.name}"
 
 }
+
+# CodeDeploy
+
+resource "aws_iam_role" "deploy" {
+  name = "deploy-role"
+
+  assume_role_policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "",
+      "Effect": "Allow",
+      "Principal": {
+        "Service": "codedeploy.amazonaws.com"
+      },
+      "Action": "sts:AssumeRole"
+    }
+  ]
+}
+EOF
+}
+
+resource "aws_codedeploy_app" "deploy" {
+  compute_platform = "Server"
+  name             = "trending"
+}
+
+
+resource "aws_iam_role_policy_attachment" "AWSCodeDeployRole" {
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AWSCodeDeployRole"
+  role       = "${aws_iam_role.deploy.name}"
+}
+
+
+resource "aws_codedeploy_deployment_group" "example" {
+  app_name              = "${aws_codedeploy_app.deploy.name}"
+  deployment_group_name = "trending-group"
+  service_role_arn      = "${aws_iam_role.deploy.arn}"
+
+  ec2_tag_set {
+    ec2_tag_filter {
+      key   = "application"
+      type  = "KEY_AND_VALUE"
+      value = "trending"
+    }
+  }
+}
+
+data "aws_ami" "ubuntu" {
+  most_recent = true
+
+  filter {
+    name   = "name"
+    values = ["ubuntu/images/hvm-ssd/ubuntu-trusty-14.04-amd64-server-*"]
+  }
+
+  filter {
+    name   = "virtualization-type"
+    values = ["hvm"]
+  }
+
+  owners = ["099720109477"] # Canonical
+}
+
+resource "aws_instance" "web" {
+  ami           = "${data.aws_ami.ubuntu.id}"
+  instance_type = "t2.micro"
+
+  tags = {
+    application = "trending"
+  }
+}
