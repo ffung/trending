@@ -69,6 +69,16 @@ resource "aws_iam_role_policy" "build" {
              "ec2:AuthorizedService": "codebuild.amazonaws.com"
          }
       }
+    },
+    {
+      "Effect": "Allow",
+      "Action": [
+        "s3:*"
+      ],
+      "Resource": [
+        "${aws_s3_bucket.build.arn}",
+        "${aws_s3_bucket.build.arn}/*"
+      ]
     }
   ]
 }
