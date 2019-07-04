@@ -6,8 +6,8 @@
 RSS Feed for trending hashtags and words in Amsterdam area.
 
 Following RSS Feeds are exposed
-- <host>:<port>/hashtags
-- <host>:<port>/words
+- `<host>:<port>/hashtags`
+- `<host>:<port>/words`
 
 Other URLS will return a 404 error.
 PS: analysis is not real time as of yet.
