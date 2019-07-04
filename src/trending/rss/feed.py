@@ -28,6 +28,3 @@ class Feed():
             fe.description(entry)
 
         return fg.rss_str(pretty=True)
-
-if __name__ == "__main__":
-    run()
