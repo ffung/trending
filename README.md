@@ -5,6 +5,26 @@
 
 RSS Feed for trending hashtags and words in Amsterdam area.
 
+## Usage
+
+Create a `trending.ini` configuration file
+```
+[default]
+tweets_file = tweets.txt
+baseurl = http://localhost
+
+[twitter]
+consumer_key = <key here>
+consumer_secret = <secret here>
+access_token = <access token here>
+access_token_secret = <access token secret here>
+
+
+```
+
+Start by
+`PYTHONPATH=src: python src/trending/main.py`
+
 Following RSS Feeds are exposed
 - `<host>:<port>/hashtags`
 - `<host>:<port>/words`
@@ -23,4 +43,5 @@ See the `pipeline` folder.
 ### Run unittests / coverage report
 ```
 python setup.py test
+
 ```
