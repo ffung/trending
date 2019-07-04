@@ -94,6 +94,7 @@ resource "aws_codebuild_project" "build" {
   artifacts {
     type = "S3"
     location = "${aws_s3_bucket.build.bucket}"
+    packaging = "ZIP"
   }
 
   environment {
