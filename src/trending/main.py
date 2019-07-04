@@ -20,7 +20,12 @@ import configparser
 import logging
 import sys
 
+from functools import partial
+from http.server import HTTPServer
+
+from trending.analysis.tweets import TweetsAnalyzer
 from trending.twitter.stream import TweetStreamer
+from trending.rss.handler import FeedHandler
 from trending import __version__
 
 
@@ -79,8 +84,6 @@ def get_configuration(config_file="trending.ini"):
 
     return config
 
-
-
 def main(args):
     """Main entry point allowing external calls
 
@@ -94,6 +97,7 @@ def main(args):
     config = get_configuration()
     default = config['default']
     tweets_file = default['tweets_file']
+    baseurl = default['baseurl']
     twitter = config['twitter']
     consumer_key = twitter['consumer_key']
     consumer_secret = twitter['consumer_secret']
@@ -105,8 +109,22 @@ def main(args):
 
     # Amsterdam region
     tweet_filter = {"locations": [4.729242, 52.278174, 5.079162, 52.431064]}
-    stream.stream_to_file(tweet_filter, tweets_file)
+    # stream.stream_to_file(tweet_filter, tweets_file)
     _logger.info("Trender stopped")
+
+    analyzer = TweetsAnalyzer("tweets.txt")
+    trending = analyzer.trending()
+    hashtags = reversed(trending[0].index)
+    words = reversed(trending[1].index)
+    handler = partial(FeedHandler, baseurl, hashtags, words)
+    server = HTTPServer(("localhost", 8080), handler)
+
+    try:
+        server.serve_forever()
+    except KeyboardInterrupt:
+        pass
+
+    server.server_close()
 
 
 def run():

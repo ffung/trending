@@ -27,7 +27,6 @@ class Feed():
             fe.link(href=self.url + "/" + entry)
             fe.description(entry)
 
-        fg.rss_file("rss")
         return fg.rss_str(pretty=True)
 
 if __name__ == "__main__":
