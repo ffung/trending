@@ -117,7 +117,7 @@ def main(args):
     hashtags = list(reversed(trending[0].index))
     words = list(reversed(trending[1].index))
     handler = partial(FeedHandler, baseurl, hashtags, words)
-    server = HTTPServer(("localhost", 8080), handler)
+    server = HTTPServer(("0.0.0.0", 8080), handler)
 
     try:
         server.serve_forever()
