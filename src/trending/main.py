@@ -114,8 +114,8 @@ def main(args):
 
     analyzer = TweetsAnalyzer("tweets.txt")
     trending = analyzer.trending()
-    hashtags = reversed(trending[0].index)
-    words = reversed(trending[1].index)
+    hashtags = list(reversed(trending[0].index))
+    words = list(reversed(trending[1].index))
     handler = partial(FeedHandler, baseurl, hashtags, words)
     server = HTTPServer(("localhost", 8080), handler)
 
