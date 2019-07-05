@@ -175,6 +175,12 @@ resource "aws_codedeploy_deployment_group" "example" {
   }
 }
 
+
+resource "aws_key_pair" "deployer" {
+  key_name   = "deployer-key"
+  public_key = "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQC51PEp3J7q/az0VKMf/j4ld4Pu3x+0kD4SXa8M4iMmCNdKCSzysQSUDsQfVW9gSxjwPP7jDkn3CneMDH1ZCsf/yFgyGrP1b/mIjpjO393WW6XbKyHECXBkQKUyJVXeKF/QHh8SQSCXSA25w8fWDrENbGOrYynNgzUdIsNU3wQoDDp0xYYgCetIqSZYe0QLIi6yi5VH0rlaB/j8jM9LE+soM8mU8QCtNgKn/exvDY7IWq9+bUA5Z0GoEXgNRzgCnEWzHx2Wl0sZhE0EJt03PNO29UkgKLYoToojiE9/TAWxpr0O0Ou6kqrjRiHep5MKTBEH6kO7DXT9VNcwvWWmFSAX fai@local"
+}
+
 data "aws_ami" "ubuntu" {
   most_recent = true
 
@@ -191,11 +197,58 @@ data "aws_ami" "ubuntu" {
   owners = ["099720109477"] # Canonical
 }
 
+resource "aws_iam_role" "instance" {
+  name = "instance"
+
+  assume_role_policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "",
+      "Effect": "Allow",
+      "Principal": {
+        "Service": [
+          "ec2.amazonaws.com"
+        ]
+      },
+      "Action": "sts:AssumeRole"
+    }
+  ]
+}
+EOF
+}
+
+resource "aws_iam_role_policy_attachment" "instance" {
+  role       = "${aws_iam_role.instance.name}"
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonEC2RoleforAWSCodeDeploy"
+}
+
+resource "aws_iam_instance_profile" "main" {
+  name = "main"
+  role = "${aws_iam_role.instance.name}"
+}
+
+
 resource "aws_instance" "web" {
   ami           = "${data.aws_ami.ubuntu.id}"
   instance_type = "t2.micro"
+  iam_instance_profile = "${aws_iam_instance_profile.main.name}"
+  key_name = "${aws_key_pair.deployer.key_name}"
+  subnet_id = "${var.subnets[1]}"
 
   tags = {
     application = "trending"
   }
+
+  user_data = <<EOF
+#!/bin/bash
+apt-get -y update
+apt-get -y install ruby2.0
+apt-get -y install wget
+cd /home/ubuntu
+wget https://aws-codedeploy-eu-west-1.s3.amazonaws.com/latest/install
+chmod +x ./install
+./install auto
+EOF
 }
